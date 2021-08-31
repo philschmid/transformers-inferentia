@@ -29,7 +29,7 @@ def deploy():
     #     role=role_name,  # An AWS IAM role (either name or full ARN).
     #     sagemaker_session=sess,
     # )
-    hf_model = HuggingFaceModel(model_data='./model.tar.gz',
+    hf_model = HuggingFaceModel(model_data='./model/model.tar.gz',
                                  role=ROLE_NAME,
                                  image_uri=IMAGE_URI,
                                  source_dir="code",
@@ -39,10 +39,10 @@ def deploy():
 
     predictor = hf_model.deploy(initial_instance_count=INITIAL_INSTANCE_COUNT, instance_type=INSTANCE_TYPE)
 
-    result = predictor.predict("אני אוהב לעבוד באמזון")
-    print(result)
+    # result = predictor.predict({"inputs":"I love the new Amazon SageMaker Hugging Face Container"})
+    # print(result)
 
-    predictor.delete_endpoint()
+    # predictor.delete_endpoint()
 
 
 

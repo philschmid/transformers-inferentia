@@ -4,6 +4,7 @@ import tensorflow  # to workaround a protobuf version conflict issue
 import torch
 import numpy as np
 import torch.neuron
+from sagemaker_huggingface_inference_toolkit import decoder_encoder
 
 AWS_NEURON_TRACED_WEIGHTS_NAME = "neuron_traced_model.pt"
 
@@ -15,6 +16,10 @@ def model_fn(model_dir):
     model = torch.jit.load(os.path.join(model_dir, AWS_NEURON_TRACED_WEIGHTS_NAME))
     return {"model": model, "tokenizer": tokenizer}
 
+
+def input_fn(input_data, content_type):
+    decoded_input_data = decoder_encoder.decode(input_data, content_type)
+    return decoded_input_data
 
 def predict_fn(data, model):
     inputs = model["tokenizer"](
