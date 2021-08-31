@@ -47,6 +47,37 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 
+# Different version -> also tried not working
+# RUN apt-get update \
+#  && apt-get install -y --no-install-recommends \
+#     ca-certificates \
+#     build-essential \
+#     openssl \
+#     openjdk-8-jdk-headless \
+#     vim \
+#     wget \
+#     curl \
+#     unzip \
+#     git \
+#     gnupg2 \
+#     build-essential \
+#     apt-transport-https \
+#     cmake \
+#     emacs \
+#     jq \
+#     libgl1-mesa-glx \
+#     libglib2.0-0 \
+#     libsm6 \
+#     libxext6 \
+#     libxrender-dev \
+#     zlib1g-dev \
+#     libcap-dev \
+#     gpg-agent \
+#  && apt-get clean \
+#  && rm -rf /tmp/tmp* \ 
+#  && rm -rf /var/lib/apt/lists/*
+
+
 RUN echo "deb https://apt.repos.neuron.amazonaws.com bionic main" > /etc/apt/sources.list.d/neuron.list
 RUN wget -qO - https://apt.repos.neuron.amazonaws.com/GPG-PUB-KEY-AMAZON-AWS-NEURON.PUB | apt-key add -
 
@@ -60,6 +91,18 @@ RUN apt-get update -y \
   && rm -rf /var/lib/apt/lists/* \
   && rm -rf /tmp/tmp* \
   && apt-get clean
+
+
+# Different version -> also tried not working
+# RUN apt-get update \
+#     && apt-get install -y \
+#     aws-neuron-runtime \
+#     aws-neuron-tools \
+#     && rm -rf /var/lib/apt/lists/* \
+#     && rm -rf /tmp/tmp* \
+#     && apt-get clean
+
+
 
 # not sure
 # RUN export PATH=/opt/aws/neuron/bin:$PATH
