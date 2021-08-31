@@ -47,6 +47,7 @@ def deploy():
 
 
 def create_archive():
+    # TODO: not working on ec2 inferentia
     tmp_dir = os.path.join(os.getcwd(), "model")
     os.popen(f"cd {tmp_dir} && tar zcvf model.tar.gz *")
 
