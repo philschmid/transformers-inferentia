@@ -2,46 +2,54 @@ import argparse
 import os
 from uuid import uuid4
 
-from sagemaker import Session
-from sagemaker.model import Model
+# from sagemaker import Session
+from sagemaker.huggingface import HuggingFaceModel
+from sagemaker.local import LocalSession
 
 
-ROLE_NAME = "sagemaker_execution_role"
+ROLE_NAME = 'arn:aws:iam::111111111111:role/service-role/AmazonSageMaker-ExecutionRole-20200101T000001'
+
 INITIAL_INSTANCE_COUNT = 1
 INSTANCE_TYPE = "local"
 IMAGE_URI = "558105141721.dkr.ecr.us-east-1.amazonaws.com/huggingface-inference-pytorch:neuron"
 MODEL_DATA = "s3://hf-sagemaker-inference/inferentia/model.tar.gz"
 REGION = "us-east-1"
 
+os.environ["AWS_DEFAULT_REGION"] = REGION
 
-def deploy(image_uri, model_data, role_name, initial_instance_count, instance_type):
+def deploy():
 
-    sess = Session()
+    sess = LocalSession()
+    sess.config = {'local': {'local_code': True}}
 
-    hf_model = Model(
-        image_uri=image_uri,  # A Docker image URI.
-        model_data=model_data,  # The S3 location of a SageMaker model data .tar.gz
-        role=role_name,  # An AWS IAM role (either name or full ARN).
-        sagemaker_session=sess,
-    )
+    # hf_model = HuggingFaceModel(
+    #     image_uri=image_uri,  # A Docker image URI.
+    #     # model_data=model_data,  # The S3 location of a SageMaker model data .tar.gz
+    #     model_data="./src/model.tar.gz",  # The S3 location of a SageMaker model data .tar.gz
+    #     role=role_name,  # An AWS IAM role (either name or full ARN).
+    #     sagemaker_session=sess,
+    # )
+    hf_model = HuggingFaceModel(model_data='./model.tar.gz',
+                                 role=ROLE_NAME,
+                                 image_uri=IMAGE_URI,
+                                 source_dir="code",
+                                 py_version="py36",
+                                 entry_point="inference.py")
 
-    hf_model.deploy(
-        initial_instance_count=initial_instance_count,
-        instance_type=instance_type,
-    )
+
+    predictor = hf_model.deploy(initial_instance_count=INITIAL_INSTANCE_COUNT, instance_type=INSTANCE_TYPE)
+
+    result = predictor.predict("אני אוהב לעבוד באמזון")
+    print(result)
+
+    predictor.delete_endpoint()
+
 
 
 def create_archive():
-    tmp_dir = os.path.join(os.getcwd(), "src")
-    os.popen(f"cd {tmp_dir} && tar zcvf model.tar.gz * && aws s3 cp model.tar.gz {MODEL_DATA}")
-
+    tmp_dir = os.path.join(os.getcwd(), "model")
+    os.popen(f"cd {tmp_dir} && tar zcvf model.tar.gz *")
 
 if __name__ == "__main__":
-    create_archive()
-    # deploy(
-    #     image_uri=IMAGE_URI,
-    #     model_data=MODEL_DATA,
-    #     role_name=ROLE_NAME,
-    #     initial_instance_count=INITIAL_INSTANCE_COUNT,
-    #     instance_type=INSTANCE_TYPE,
-    # )
+    # create_archive()
+    deploy( )

@@ -164,5 +164,4 @@ cython_debug/
 
 .vscode/settings.json
 .sagemaker
-model
 tests/tmp
