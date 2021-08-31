@@ -11,7 +11,7 @@ aws ecr get-login-password \
 # Run Container with bash
 
 ```bash
-	docker run -ti --entrypoint	/bin/bash 558105141721.dkr.ecr.us-east-1.amazonaws.com/huggingface-inference-pytorch:neuron
+docker run -ti --entrypoint	/bin/bash 558105141721.dkr.ecr.us-east-1.amazonaws.com/huggingface-inference-pytorch:neuron
 ```
 
 
