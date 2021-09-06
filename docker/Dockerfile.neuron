@@ -30,24 +30,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 ENV PATH /opt/conda/bin:$PATH
 
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    build-essential \
-    openssl \
-    openjdk-8-jdk-headless \
-    vim \
-    wget \
-    curl \
-    unzip \
-    git \
-    gnupg2 \
- && apt-get clean \
- && rm -rf /tmp/tmp* \ 
- && rm -rf /var/lib/apt/lists/*
-
-
-# Different version -> also tried not working
 # RUN apt-get update \
 #  && apt-get install -y --no-install-recommends \
 #     ca-certificates \
@@ -60,22 +42,40 @@ RUN apt-get update \
 #     unzip \
 #     git \
 #     gnupg2 \
-#     build-essential \
-#     apt-transport-https \
-#     cmake \
-#     emacs \
-#     jq \
-#     libgl1-mesa-glx \
-#     libglib2.0-0 \
-#     libsm6 \
-#     libxext6 \
-#     libxrender-dev \
-#     zlib1g-dev \
-#     libcap-dev \
-#     gpg-agent \
 #  && apt-get clean \
 #  && rm -rf /tmp/tmp* \ 
 #  && rm -rf /var/lib/apt/lists/*
+
+
+# Different version -> also tried not working
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    build-essential \
+    openssl \
+    openjdk-8-jdk-headless \
+    vim \
+    wget \
+    curl \
+    unzip \
+    git \
+    gnupg2 \
+    build-essential \
+    apt-transport-https \
+    cmake \
+    emacs \
+    jq \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    zlib1g-dev \
+    libcap-dev \
+    gpg-agent \
+ && apt-get clean \
+ && rm -rf /tmp/tmp* \ 
+ && rm -rf /var/lib/apt/lists/*
 
 
 RUN echo "deb https://apt.repos.neuron.amazonaws.com bionic main" > /etc/apt/sources.list.d/neuron.list
@@ -105,7 +105,8 @@ RUN apt-get update -y \
 
 
 # not sure
-# RUN export PATH=/opt/aws/neuron/bin:$PATH
+# ENV PATH="/opt/aws/neuron/bin:$PATH"
+RUN export PATH=/opt/aws/neuron/bin:$PATH
 
 
 RUN curl -L -o ~/miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh \
@@ -151,10 +152,12 @@ RUN useradd -m model-server \
  && mkdir -p /home/model-server/tmp \
  && chown -R model-server /home/model-server
 
-COPY ./docker/mms-entrypoint.py /usr/local/bin/dockerd-entrypoint.py
+COPY ./docker/neuron-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
+COPY ./docker/mms-entrypoint.py /usr/local/bin/mms-entrypoint.py
 COPY ./docker/config.properties /etc/sagemaker-mms.properties
 
-RUN chmod +x /usr/local/bin/dockerd-entrypoint.py
+RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh
+RUN chmod +x /usr/local/bin/mms-entrypoint.py
 
 ADD https://raw.githubusercontent.com/aws/deep-learning-containers/master/src/deep_learning_container.py /usr/local/bin/deep_learning_container.py
 
@@ -177,5 +180,6 @@ RUN HOME_DIR=/root \
 RUN curl https://aws-dlc-licenses.s3.amazonaws.com/pytorch-1.7/license.txt -o /license.txt
 
 EXPOSE 8080 8081
-ENTRYPOINT ["python", "/usr/local/bin/dockerd-entrypoint.py"]
-CMD ["serve"]
+
+
+CMD ["/usr/local/bin/dockerd-entrypoint.sh"]
