@@ -13,7 +13,6 @@ model_id2label = {"0": "NEGATIVE", "1": "POSITIVE"}
 import subprocess
 
 print(subprocess.run(["/opt/aws/neuron/bin/neuron-ls"], stdout=subprocess.PIPE).stdout.decode("utf-8"))
-print(subprocess.run(["/opt/aws/neuron/bin/neuron-top"], stdout=subprocess.PIPE).stdout.decode("utf-8"))
 
 
 def model_fn(model_dir):
