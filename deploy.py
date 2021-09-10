@@ -1,13 +1,13 @@
-import argparse
 import os
-from uuid import uuid4
 import boto3
-
-
-# from sagemaker import Session
 from sagemaker.huggingface import HuggingFaceModel
 from sagemaker.local import LocalSession
 from sagemaker import Session
+
+# Create model.tar.gz
+# cd model
+# tar zcvf model.tar.gz *
+# aws s3 cp model.tar.gz <s3://{my-s3-path}>
 
 
 def deploy():
@@ -24,13 +24,6 @@ def deploy():
         ROLE_NAME = "arn:aws:iam::111111111111:role/service-role/AmazonSageMaker-ExecutionRole-20200101T000001"
         INSTANCE_TYPE = "local"
         MODEL_DATA = "./model/model.tar.gz"
-        # hf_model = HuggingFaceModel(
-        #     image_uri=image_uri,  # A Docker image URI.
-        #     # model_data=model_data,  # The S3 location of a SageMaker model data .tar.gz
-        #     model_data="./src/model.tar.gz",  # The S3 location of a SageMaker model data .tar.gz
-        #     role=role_name,  # An AWS IAM role (either name or full ARN).
-        #     sagemaker_session=sess,
-        # )
     else:
         iam_client = boto3.client("iam")
         ROLE_NAME = iam_client.get_role(RoleName="sagemaker_execution_role")["Role"]["Arn"]
@@ -51,12 +44,6 @@ def deploy():
     # print(result)
 
     # predictor.delete_endpoint()
-
-
-# def create_archive():
-#     # TODO: not working on ec2 inferentia
-#     tmp_dir = os.path.join(os.getcwd(), "model")
-#     os.popen(f"cd {tmp_dir} && tar zcvf model.tar.gz *")
 
 
 if __name__ == "__main__":

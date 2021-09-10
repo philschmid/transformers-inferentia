@@ -10,6 +10,11 @@ AWS_NEURON_TRACED_WEIGHTS_NAME = "neuron_traced_model.pt"
 
 model_id2label = {"0": "NEGATIVE", "1": "POSITIVE"}
 
+import subprocess
+
+print(subprocess.run(["/opt/aws/neuron/bin/neuron-ls"], stdout=subprocess.PIPE).stdout.decode("utf-8"))
+print(subprocess.run(["/opt/aws/neuron/bin/neuron-top"], stdout=subprocess.PIPE).stdout.decode("utf-8"))
+
 
 def model_fn(model_dir):
     tokenizer = AutoTokenizer.from_pretrained(model_dir)
@@ -20,6 +25,7 @@ def model_fn(model_dir):
 def input_fn(input_data, content_type):
     decoded_input_data = decoder_encoder.decode(input_data, content_type)
     return decoded_input_data
+
 
 def predict_fn(data, model):
     inputs = model["tokenizer"](
