@@ -12,6 +12,8 @@ model_id2label = {"0": "NEGATIVE", "1": "POSITIVE"}
 
 import subprocess
 
+os.environ["NEURONCORE_GROUP_SIZES"] = "1"
+
 print(subprocess.run(["/opt/aws/neuron/bin/neuron-ls"], stdout=subprocess.PIPE).stdout.decode("utf-8"))
 
 
