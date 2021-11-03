@@ -56,6 +56,8 @@ RUN curl -L -o ~/miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-lat
     ruamel_yaml==0.15.100 \
     cython \
     botocore \
+    mkl-include==2021.4.0 \
+    mkl==2021.4 \
  && /opt/conda/bin/conda clean -ya
 
 
