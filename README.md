@@ -8,6 +8,7 @@
 * [Using the Amazon ECS-optimized Amazon Linux 2 (Inferentia) AMI](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-inference.html#ecs-inference-ami)
 * [EKS Machine learning inference using AWS Inferentia](https://docs.aws.amazon.com/eks/latest/userguide/inferentia-support.html)
     * [For CDK use EKSOptimized images with NodeType INF](https://docs.aws.amazon.com/cdk/api/latest/python/aws_cdk.aws_eks_legacy/EksOptimizedImage.html?highlight=nodetype#eksoptimizedimage)
+* [current example](https://github.com/aws/aws-neuron-sdk/blob/master/src/examples/pytorch/byoc_sm_bert_tutorial/sagemaker_container_neuron.ipynb)
 
 
 ## Development Enviroonment (EC2 inf instance)
