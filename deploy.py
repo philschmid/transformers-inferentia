@@ -34,9 +34,11 @@ def deploy():
         role=ROLE_NAME,
         image_uri=IMAGE_URI,
         source_dir="code",
-        py_version="py36",
+        py_version="py38",
         entry_point="inference.py",
     )
+    # Let SageMaker know that we've already compiled the model via neuron-cc
+    hf_model._is_compiled_model = True
 
     predictor = hf_model.deploy(initial_instance_count=INITIAL_INSTANCE_COUNT, instance_type=INSTANCE_TYPE)
 
