@@ -1,12 +1,39 @@
 # Transformers inferentia example
 
-## Help
 
-* bash `-S` means -> file is not zero size
-* we need to add `--cap-add=IPC_LOCK` to docker run to enable shmem interface. heck for capability failed! `'CAP_IPC_LOCK'`. IPC_LOCK is required to use shmem interface.
-* [Example: Run containerized neuron application](https://github.com/aws/aws-neuron-sdk/blob/master/neuron-deploy/docker-example/index.rst)
+## Resources
 
-# ECR LOGIN
+* [Deploy Neuron Container on EC2](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/neuron-deploy/dlc-then-ec2-devflow.html)
+* [Docker environment setup](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/neuron-deploy/tutorials/tutorial-docker-env-setup.html#docker-environment-setup)
+* [Using the Amazon ECS-optimized Amazon Linux 2 (Inferentia) AMI](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-inference.html#ecs-inference-ami)
+* [EKS Machine learning inference using AWS Inferentia](https://docs.aws.amazon.com/eks/latest/userguide/inferentia-support.html)
+    * [For CDK use EKSOptimized images with NodeType INF](https://docs.aws.amazon.com/cdk/api/latest/python/aws_cdk.aws_eks_legacy/EksOptimizedImage.html?highlight=nodetype#eksoptimizedimage)
+
+
+## Development Enviroonment (EC2 inf instance)
+
+Prior to running the container, make sure that the Neuron runtime on the instance is turned off, by running the command:
+
+```bash
+sudo service neuron-rtd stop
+```
+
+Build test container
+```bash
+docker build . -f docker/Dockerfile.neuron-torch -t neuron-test
+```
+
+test runtime
+
+```bash
+docker run -e AWS_NEURON_VISIBLE_DEVICES="0"  neuron-test neuron-ls
+```
+
+_Note: If you ran into an error check the instruction you might run on a host with an old runtime. [Instruction here](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/neuron-deploy/tutorials/tutorial-docker-env-setup.html#steps)_
+
+# Transformers DLC
+
+## ECR LOGIN
 
 ```bash
 aws ecr get-login-password \
@@ -20,7 +47,7 @@ aws ecr get-login-password \
 # Build new container
 
 ```bash
-docker build --tag 558105141721.dkr.ecr.us-east-1.amazonaws.com/huggingface-inference-pytorch:neuron --build-arg	TRANSFORMERS_VERSION=4.10.0 --file docker/Dockerfile.neuron .
+docker build --tag 558105141721.dkr.ecr.us-east-1.amazonaws.com/huggingface-inference-pytorch:neuron --build-arg	TRANSFORMERS_VERSION=4.10.2 --file docker/Dockerfile.neuron .
 ```
 
 ```bash
@@ -32,31 +59,24 @@ docker push 558105141721.dkr.ecr.us-east-1.amazonaws.com/huggingface-inference-p
 **check neuron devices**
 ```bash
 docker run -ti \
-  --device=/dev/neuron0 \
-  --cap-add=IPC_LOCK \
-  -v /tmp/neuron_rtd_sock/:/sock \
-  --entrypoint /bin/bash \
+  -e AWS_NEURON_VISIBLE_DEVICES="0" \
   558105141721.dkr.ecr.us-east-1.amazonaws.com/huggingface-inference-pytorch:neuron /opt/aws/neuron/bin/neuron-ls
 ```
 
 **interactive session**
 ```bash
 docker run -ti \
-  --device=/dev/neuron0 \
-  --cap-add=IPC_LOCK \
-  -v /tmp/neuron_rtd_sock/:/sock \
-  --entrypoint /bin/bash \
+  -e AWS_NEURON_VISIBLE_DEVICES="0" \
+    --entrypoint /bin/bash \
   558105141721.dkr.ecr.us-east-1.amazonaws.com/huggingface-inference-pytorch:neuron
 ```
 
 **run container**
 ```bash
 docker run -ti \
-  --env NEURON_RTD_ADDRESS=unix:/sock/neuron.sock \
-  -v /tmp/neuron_rtd_sock/:/sock \
+  -e AWS_NEURON_VISIBLE_DEVICES="0" \
   -v $(pwd)/model:/opt/ml/model \
-  --entrypoint /bin/bash \
-  558105141721.dkr.ecr.us-east-1.amazonaws.com/huggingface-inference-pytorch:neuron /usr/local/bin/dockerd-entrypoint.sh
+  558105141721.dkr.ecr.us-east-1.amazonaws.com/huggingface-inference-pytorch:neuron
 ```
 
 # Test SageMaker endpoint
